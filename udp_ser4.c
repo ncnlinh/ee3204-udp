@@ -45,6 +45,7 @@ void str_ser(int sockfd)
   struct pack_so packet;
   long end, n = 0;
   long lseek=0;
+  uint32_t current_packet_number = 1;
   socklen_t len;
   int errno;
   end = 0;
@@ -57,7 +58,7 @@ void str_ser(int sockfd)
   while(!end)
   {
     /********* receive data *********/
-    if ((n= recvfrom(sockfd, &packet, BUFSIZE, 0, (struct sockaddr *)&addr, &len)) == -1)       //receive the packet
+    if ((n= recvfrom(sockfd, &packet, sizeof(struct pack_so), 0, (struct sockaddr *)&addr, &len)) == -1)       //receive the packet
     {
       printf("error when receiving: %d\n",errno);
       exit(1);
@@ -65,33 +66,49 @@ void str_ser(int sockfd)
 
     else 
     {
-      printf("Received %ld bytes\n", n);
+      printf("Received %ld bytes, including %u bytes of data\n", n, packet.len);
     
-      /********* store in buffer *********/
-
-      if (packet.data[n-1] == '\0')                 //if it is the end of the file
-      {
-        printf("End of file!\n");
-        end = 1;
-        n --;
-      }
-      memcpy((buf+lseek), packet.data, n);
-      lseek += n;
-      /********* build ack **********/
-
-      // THE CORRECT ACK
-      ack.num = packet.num;
-      ack.len = packet.len;
       
+      
+      /********* build ack **********/
+      
+      if (rand() % 100 < CORRUPTED_ACK_RATE )
+      {
+        ack.num = packet.num - 1;
+        ack.len = packet.len - 1;
+        printf("Corrupted ACK ");
+      } 
+      else 
+      {
+        // THE CORRECT ACK
+        ack.num = packet.num;
+        ack.len = packet.len;
+        printf("ACK ");
+      }
       /********* send ack *********/
 
-      if ((n = sendto(sockfd, &ack, 2, 0, (struct sockaddr *)&addr, len))==-1)      //send the ack
+      if ((n = sendto(sockfd, &ack, sizeof(ack), 0, (struct sockaddr *)&addr, len))==-1)      //send the ack
       {
           printf("Error sending: %d\n",errno);               
           exit(1);
       }
-      printf("Sent ACK\n");
+      printf("sent\n");
+    }
+
+    /********* save packet *******/
+    if (packet.num == current_packet_number)  // if not a duplicate
+    { 
+      if (packet.data[packet.len-1] == '\0')                 //if it is the end of the file
+      {
+        printf("End of file!\n");
+        end = 1;
+        packet.len --; //To remove the NUL character
       }
+      
+      memcpy((buf+lseek), packet.data, packet.len);
+      lseek += packet.len;
+    }
+    current_packet_number = packet.num +1;
   }
 
   /********* store to file *********/

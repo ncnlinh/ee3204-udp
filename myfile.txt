@@ -1,4 +1,4 @@
-hihi
+hihihaha
 
 configure: exit 0
 This file contains any messages produced by compilers while
