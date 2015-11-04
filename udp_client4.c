@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
 
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);             //create socket b(udp)
   struct timeval tv;
-  tv.tv_sec = 0;
-  tv.tv_usec = 100000;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
-    perror("Error, cannot set timeout");
-  }
+  tv.tv_sec = 1;
+  tv.tv_usec = 0;
+  // if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,&tv,sizeof(tv)) < 0) {
+  //   perror("Error, cannot set timeout");
+  // }
   if (sockfd<0)
   {
     printf("error in socket");

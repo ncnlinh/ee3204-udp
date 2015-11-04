@@ -15,12 +15,12 @@
 
 #define NEWFILE (O_WRONLY|O_CREAT|O_TRUNC)
 #define MYTCP_PORT 4950
-#define MYUDP_PORT 8888
-#define DATALEN 500
+#define MYUDP_PORT 5351
+#define DATALEN 20
 #define BUFSIZE 60000
 #define PACKLEN 508
 #define HEADLEN 8
-#define CORRUPTED_ACK_RATE 10
+#define CORRUPTED_ACK_RATE 0
 
 struct pack_so      //data packet structure
 {

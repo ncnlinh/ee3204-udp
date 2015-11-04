@@ -12,11 +12,8 @@ do
     replace "#define CORRUPTED_ACK_RATE 0" "#define CORRUPTED_ACK_RATE $CORRATE" -- ./headsock.h
     for VARIABLE in {1..20}
     do
-      gcc ./udp_ser4.c -o udp_ser4
       gcc ./udp_client4.c -o udp_client4
-      ./udp_ser4 &
-      ./udp_client4 127.0.0.1
-      wait %1
+      ./udp_client4 172.23.194.40
       sleep 1
     done
     replace "#define CORRUPTED_ACK_RATE $CORRATE" "#define CORRUPTED_ACK_RATE 0" -- ./headsock.h
